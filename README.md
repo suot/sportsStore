@@ -1,6 +1,6 @@
 1. Clone the source code onto your local repository
 ```
-Git clone https://github.com/suot/sportsStore.Git
+Git clone https://github.com/suot/sportsStore.git
 ```
 2. Open it with PyCharm, "Tools->Run manage.py Task...", "Run"
 3. Open a browser and add/edit/delete data on the admin page "http://127.0.0.1:8000/admin"
