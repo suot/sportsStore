@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+{#    <title>Detail</title>#}
+</head>
+<body>
+    {% if category %}
+        <h2>Name: {{ category.name }}</h2>
+        <h2>Warehouse: {{ category.warehouse }}</h2>
+        <ol>
+            {% for product in products %}
+                <li>{{ product }}</li>
+            {% endfor %}
+        </ol>
+    {% else %}
+        <strong>The category with id {{ cat_no }} does not exist</strong>
+    {% endif %}
+{#    <p><a href="{% url 'store:index' %}">Home</a></p>#}
+</body>
+</html>

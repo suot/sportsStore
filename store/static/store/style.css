@@ -1,0 +1,12 @@
+h1 {
+    background-color: chartreuse;
+    text-decoration-color: black;
+    font-size: medium;
+    font-style: italic;
+    font-variant-position: normal;
+}
+
+.hbar1 {
+    display: inline;
+    margin: 15px;
+}
