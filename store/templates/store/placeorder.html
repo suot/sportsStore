@@ -1,0 +1,9 @@
+{% extends 'store/base.html' %}
+{% block title %}Place order{% endblock %}
+{% block body_block %}
+    <form action="{% url 'store:place_order' %}" method="post">
+        {% csrf_token %}
+        {{ form }}
+        <input type="submit" value="Submit" />
+    </form>
+{% endblock %}

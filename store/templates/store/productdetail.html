@@ -1,0 +1,13 @@
+{% extends 'store/base.html' %}
+{% block title %}Product detail{% endblock %}
+{% block body_block %}
+    {% if msg %}
+        <p>{{ msg }}</p>
+    {% endif %}
+
+    <form action="{% url 'store:productdetail' id %}" method="post">
+        {% csrf_token %}
+        {{ form }}
+        <input type="submit" value="Submit" />
+    </form>
+{% endblock %}

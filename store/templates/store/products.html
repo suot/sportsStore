@@ -1,0 +1,13 @@
+{% extends 'store/base.html' %}
+{% block title %}Products{% endblock %}
+{% block body_block %}
+    {% if prodlist %}
+        <ol>
+            {% for product in prodlist %}
+                <li><a href="{% url 'store:productdetail' product.id %}">{{ product }}</a></li>
+            {% endfor %}
+        </ol>
+    {% else %}
+        <strong>No available products</strong>
+    {% endif %}
+{% endblock %}
