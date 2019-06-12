@@ -1,5 +1,5 @@
 from django import forms
-from store.models import Order
+from store.models import Order, Client
 from django.utils.safestring import mark_safe
 
 class OrderForm(forms.ModelForm):
@@ -22,3 +22,9 @@ class InterestForm(forms.Form):
     interested = forms.IntegerField(widget=forms.RadioSelect(choices=INTEREST_CHOICES))
     quantity = forms.IntegerField(min_value=1, initial=1)
     comments = forms.CharField(widget=forms.Textarea, label=mark_safe('<br/>Additional Comments'), required=False)
+
+
+class ClientForm(forms.ModelForm):
+    class Meta:
+        model = Client
+        fields = ['first_name', 'last_name', 'password', 'email', 'avatar']

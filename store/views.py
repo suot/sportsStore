@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from .models import Category, Product, Client, Order
-from .forms import OrderForm, InterestForm
+from .forms import OrderForm, InterestForm, ClientForm
 from django.shortcuts import redirect
 
 # Create your views here.
@@ -93,3 +93,18 @@ def productdetail(request, prod_id):
         else:
             msg = "Product is not available."
         return render(request, 'store/productdetail.html', {'form': form, 'msg': msg, 'id': product.id})
+
+
+def register(request):
+    msg = ''
+    if request.method == 'POST':
+        form = ClientForm(request.POST)
+        if form.is_valid():
+            form.save()
+            msg = 'You are registered successfully.'
+        else:
+            msg = 'InvalidError.'
+        return render(request, 'store/register.html', {'msg': msg})
+    else:
+        form = ClientForm()
+        return render(request, 'store/register.html', {'form': form, 'msg': ''})

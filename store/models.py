@@ -25,7 +25,8 @@ class Product(models.Model):
         return self.name
 
     def refill(self):
-        self.stock += 100
+        self.stock += 50
+        self.save()
 
 class Client(User):
     PROVINCE_CHOICES = [
@@ -39,9 +40,13 @@ class Client(User):
     city = models.CharField(max_length=20, default='Windsor')
     province = models.CharField(max_length=2, choices=PROVINCE_CHOICES, default='ON')
     interested_in = models.ManyToManyField(Category)
+    avatar = models.ImageField(blank=True)
 
     def __str__(self):
         return self.first_name + ' ' + self.last_name
+
+    def get_interested_in(self):
+        return "\n".join([c.name for c in self.interested_in.all()])
 
 class Order(models.Model):
     STATUS_CHOICES = [

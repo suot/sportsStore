@@ -1,0 +1,13 @@
+{% extends 'store/base.html' %}
+{% block title %}Register{% endblock %}
+{% block body_block %}
+    {% if msg %}
+        <p>{{ msg }}</p>
+    {% else %}
+        <form action="{% url 'store:register' %}" method="post">
+            {% csrf_token %}
+            {{ form }}
+            <input type="submit" value="Submit" />
+        </form>
+    {% endif %}
+{% endblock %}
