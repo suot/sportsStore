@@ -1,9 +1,13 @@
 from django.shortcuts import render, get_object_or_404
-from .models import Category, Product, Client, Order
-from .forms import OrderForm, InterestForm, ClientForm
-from django.shortcuts import redirect
+from .models import Category, Product, Client, Order, User
+from .forms import OrderForm, InterestForm, ClientForm, LoginForm
+from django.shortcuts import redirect, reverse
+from django.contrib.auth import authenticate, login as sysLogin, logout as sysLogout
+from django.contrib.auth.decorators import login_required
+
 
 # Create your views here.
+@login_required
 def index(request):
     # response = HttpResponse()
     #
@@ -22,14 +26,15 @@ def index(request):
     #     response.write(para)
     #
     # return response
+
     cat_list = Category.objects.all().order_by('id')[:10]
-    return render(request, 'store/index.html', {'cat_list': cat_list})
+    return render(request, 'store/index.html', {'cat_list': cat_list, 'first_name': request.user.first_name})
 
-
+@login_required
 def about(request):
-    return render(request, 'store/about.html')
+    return render(request, 'store/about.html', {'first_name': request.user.first_name})
 
-
+@login_required
 def detail(request, cat_no):
     # response = HttpResponse()
     #
@@ -45,14 +50,14 @@ def detail(request, cat_no):
 
     category = get_object_or_404(Category, id=cat_no)
     products = category.products.all()
-    return render(request, 'store/detail.html', {'category': category, 'products': products, 'cat_no': cat_no})
+    return render(request, 'store/detail.html', {'category': category, 'products': products, 'cat_no': cat_no, 'first_name': request.user.first_name})
 
-
+@login_required
 def products(request):
     prodlist = Product.objects.all().order_by('id')[:10]
-    return render(request, 'store/products.html', {'prodlist': prodlist})
+    return render(request, 'store/products.html', {'prodlist': prodlist, 'first_name': request.user.first_name})
 
-
+@login_required
 def place_order(request):
     msg = ''
     prodlist = Product.objects.all()
@@ -61,21 +66,22 @@ def place_order(request):
         if form.is_valid():
             order = form.save(commit=False)
             if order.num_units <= order.product.stock:
+                order.client = Client.objects.get(username=request.user.username)
                 order.save()
                 msg = 'Your order has been placed successfully.'
                 product = order.product
                 product.stock = product.stock - order.num_units
                 product.save()
             else:
-                msg = 'We do not have sufficient stock to fill your order.'
+                msg = 'We do not have sufficient stock to fill your order'
         else:
-            msg = 'InvalidError.'
-        return render(request, 'store/order_response.html', {'msg': msg})
+            msg = 'InvalidError'
+        return render(request, 'store/order_response.html', {'msg': msg, 'first_name': request.user.first_name})
     else:
         form = OrderForm()
-        return render(request, 'store/placeorder.html', {'form': form, 'msg': msg, 'prodlist': prodlist})
+        return render(request, 'store/placeorder.html', {'form': form, 'msg': msg, 'prodlist': prodlist, 'first_name': request.user.first_name})
 
-
+@login_required
 def productdetail(request, prod_id):
     msg = ''
     product = Product.objects.get(id=prod_id)
@@ -92,7 +98,14 @@ def productdetail(request, prod_id):
             msg = "Name: " + product.name + ", Interesed: " + str(product.interested) + ", Price: " + str(product.price)
         else:
             msg = "Product is not available."
-        return render(request, 'store/productdetail.html', {'form': form, 'msg': msg, 'id': product.id})
+        return render(request, 'store/productdetail.html', {'form': form, 'msg': msg, 'id': product.id, 'first_name': request.user.first_name})
+
+
+@login_required
+def myorders(request):
+    client = Client.objects.get(username=request.user.username)
+    orderlist = client.order_set.all()
+    return render(request, 'store/myorders.html', {'orderlist': orderlist, 'first_name': request.user.first_name})
 
 
 def register(request):
@@ -100,11 +113,52 @@ def register(request):
     if request.method == 'POST':
         form = ClientForm(request.POST)
         if form.is_valid():
-            form.save()
-            msg = 'You are registered successfully.'
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            email = form.cleaned_data['email']
+            user = Client.objects.create_user(username, email, password)
+            user.first_name = form.cleaned_data['first_name']
+            user.last_name = form.cleaned_data['last_name']
+            user.email = form.cleaned_data['email']
+            user.save()
+            msg = 'You are registered successfully'
         else:
-            msg = 'InvalidError.'
+            msg = 'InvalidError'
         return render(request, 'store/register.html', {'msg': msg})
     else:
         form = ClientForm()
         return render(request, 'store/register.html', {'form': form, 'msg': ''})
+
+
+def login(request):
+    msg = ''
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            user = authenticate(request, username=username, password=password)
+
+            if user is not None:
+                if user.is_active:
+                    sysLogin(request, user)
+                    next = request.POST.get('next') #In login.html, a hidden input is used to record the next value and pass it here
+                    return redirect(next)
+                    # return redirect(reverse('store:about'))
+                else:
+                    msg = 'Disabled account'
+            else:
+                msg = 'Invalid username or password'
+        else:
+            msg = 'Invalid Error'
+        return render(request, 'store/login.html', {'form': form, 'msg': msg})
+    else:
+        form = LoginForm()
+        return render(request, 'store/login.html', {'form': form, 'msg': ''})
+
+
+@login_required
+def logout(request):
+    sysLogout(request)
+    form = LoginForm()
+    return render(request, 'store/login.html', {'form': form, 'msg': ''})

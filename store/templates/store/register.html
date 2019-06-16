@@ -1,6 +1,12 @@
-{% extends 'store/base.html' %}
-{% block title %}Register{% endblock %}
-{% block body_block %}
+<!DOCTYPE html>
+{% load staticfiles %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="{% static 'store/style.css' %}" />
+    <title>Register</title>
+</head>
+<body>
     {% if msg %}
         <p>{{ msg }}</p>
     {% else %}
@@ -10,4 +16,14 @@
             <input type="submit" value="Submit" />
         </form>
     {% endif %}
-{% endblock %}
+    <hr/>
+    <div>
+        <ul>
+            <li class="hbar1"><a href="{% url 'store:login' %}">Login</a></li>
+            {% if msg == 'InvalidError' %}
+                <li class="hbar1"><a href="{% url 'store:register' %}">Register</a></li>
+            {% endif %}
+        </ul>
+    </div>
+</body>
+</html>

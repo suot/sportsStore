@@ -1,17 +1,13 @@
 from django import forms
-from store.models import Order, Client
+from store.models import Order, Client, User
 from django.utils.safestring import mark_safe
 
 class OrderForm(forms.ModelForm):
     class Meta:
         model = Order
-        fields=['product', 'num_units', 'client']
-        widgets = {
-            'client': forms.RadioSelect,
-        }
+        fields=['product', 'num_units']
         labels = {
             'num_units': mark_safe('<br/>Quantity'),
-            'client': mark_safe('<br/>Client Name')
         }
 
 class InterestForm(forms.Form):
@@ -27,4 +23,15 @@ class InterestForm(forms.Form):
 class ClientForm(forms.ModelForm):
     class Meta:
         model = Client
-        fields = ['first_name', 'last_name', 'password', 'email', 'avatar']
+        fields = ['username', 'password', 'first_name', 'last_name', 'email', 'avatar']
+        labels = {
+            'first_name': mark_safe('<br/>First name'),
+            'email': mark_safe('<br/>Email address')
+        }
+        help_texts = {
+            'username': None,
+        }
+
+class LoginForm(forms.Form):
+    username = forms.CharField()
+    password = forms.CharField()

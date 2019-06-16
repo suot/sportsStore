@@ -1,0 +1,13 @@
+{% extends 'store/base.html' %}
+{% block title %}My orders{% endblock %}
+{% block body_block %}
+    {% if orderlist %}
+        <ul>
+            {% for order in orderlist %}
+                <li>{{ order.product.name }}: {{ order.num_units }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <strong>You do not have orders</strong>
+    {% endif %}
+{% endblock %}
