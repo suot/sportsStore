@@ -4,7 +4,7 @@ from .forms import OrderForm, InterestForm, ClientForm, LoginForm
 from django.shortcuts import redirect, reverse
 from django.contrib.auth import authenticate, login as sysLogin, logout as sysLogout
 from django.contrib.auth.decorators import login_required
-
+import datetime
 
 # Create your views here.
 @login_required
@@ -26,13 +26,20 @@ def index(request):
     #     response.write(para)
     #
     # return response
-
+    if 'last_login' in request.session:
+        last_login = 'Last login: ' + request.session['last_login']
+    else:
+        last_login = 'Your last login was one hour ago'
     cat_list = Category.objects.all().order_by('id')[:10]
-    return render(request, 'store/index.html', {'cat_list': cat_list, 'first_name': request.user.first_name})
+    return render(request, 'store/index.html', {'cat_list': cat_list, 'first_name': request.user.first_name, 'last_login': last_login})
 
 @login_required
 def about(request):
-    return render(request, 'store/about.html', {'first_name': request.user.first_name})
+    if 'about_visits' in request.session:
+        request.session['about_visits'] = request.session['about_visits'] + 1
+    else:
+        request.session['about_visits'] = 1
+    return render(request, 'store/about.html', {'first_name': request.user.first_name, 'about_visits': request.session['about_visits']})
 
 @login_required
 def detail(request, cat_no):
@@ -142,9 +149,15 @@ def login(request):
             if user is not None:
                 if user.is_active:
                     sysLogin(request, user)
+                    request.session.set_expiry(300)
+
+                    request.session['last_login'] = str(datetime.datetime.now().replace(microsecond=0))
                     next = request.POST.get('next') #In login.html, a hidden input is used to record the next value and pass it here
-                    return redirect(next)
-                    # return redirect(reverse('store:about'))
+                    if next == '':
+                        return redirect('/store/')
+                        # return redirect(reverse('store:index'))
+                    else:
+                        return redirect(next)
                 else:
                     msg = 'Disabled account'
             else:
